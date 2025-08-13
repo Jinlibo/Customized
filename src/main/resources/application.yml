@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: customized-service
+  config:
+    import: classpath:application.yml , nacos:${spring.application.name}.yaml
+  cloud:
+    nacos:
+      discovery:
+        #必须配置ip地址
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+      # 配置中心新增部分
+      config:
+        #必须配置ip地址
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        file-extension: yaml
+
+
+

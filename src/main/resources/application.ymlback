@@ -1,0 +1,31 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: customized-service
+  config:
+    import: nacos:customized-service.yaml
+  cloud:
+    nacos:
+      discovery:
+        group: DEFAULT_GROUP
+        #必须配置ip地址
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace: public
+      # 配置中心新增部分
+      config:
+        group: DEFAULT_GROUP
+        #必须配置ip地址
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        namespace: public
+        file-extension: yaml
+
+
+
+
+
+

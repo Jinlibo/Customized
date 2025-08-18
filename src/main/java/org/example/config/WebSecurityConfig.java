@@ -18,7 +18,7 @@ import javax.annotation.Resource;
 @Slf4j
 public class WebSecurityConfig {
     @Resource
-    private MyAuthenticationSuccessHandler myAutheticationSuccessHandler;
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     @Resource
     private JwtCheckFilter jwtCheckFilter;
 
@@ -32,20 +32,20 @@ public class WebSecurityConfig {
 
         http.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
         http.authorizeRequests().anyRequest().authenticated();
-        http.formLogin().successHandler(myAutheticationSuccessHandler).permitAll();
-        http.formLogin().failureHandler(new MyAuthenticationFailureHandler());
+        http.formLogin().successHandler(customAuthenticationSuccessHandler).permitAll();
+        http.formLogin().failureHandler(new CustomAuthenticationFailureHandler());
         http.logout(logout -> {
-            logout.logoutSuccessHandler(new MyLogoutSuccessHandler()); //注销成功时的处理
+            logout.logoutSuccessHandler(new CustomLogoutSuccessHandler()); //注销成功时的处理
         });
 
         //错误处理
         http.exceptionHandling(exception -> {
-            exception.authenticationEntryPoint(new MyAuthenticationEntryPoint());//请求未认证的接口
-            exception.accessDeniedHandler(new MyAccessDeniedHandler()); //请求未授权的接口
+            exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint());//请求未认证的接口
+            exception.accessDeniedHandler(new CustomAccessDeniedHandler()); //请求未授权的接口
         });
         //会话管理
         http.sessionManagement(session -> {
-            session.maximumSessions(1).expiredSessionStrategy(new MySessionInformationExpiredStrategy());
+            session.maximumSessions(1).expiredSessionStrategy(new CustomSessionInformationExpiredStrategy());
         });
 
         http.csrf().disable();

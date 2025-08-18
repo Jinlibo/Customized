@@ -11,14 +11,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public class MySecurityUser implements UserDetails {
+public class CustomSecurityUser implements UserDetails {
     @Getter
     private final SysUser sysUser;
     //用于存储权限的list
     @Setter
     private List<SimpleGrantedAuthority> authorityList;
 
-    public MySecurityUser(SysUser sysUser) {
+    public CustomSecurityUser(SysUser sysUser) {
         this.sysUser = sysUser;
     }
 

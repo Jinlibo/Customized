@@ -28,7 +28,7 @@ public class RedisConfig {
         // 设置连接工厂
         template.setConnectionFactory(connectionFactory);
 
-        // 使用FastJson2JsonRedisSerializer来序列化和反序列化redis的value值
+        // 使用 GenericJackson2JsonRedisSerializer来序列化和反序列化redis的value值
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         // 使用StringRedisSerializer来序列化和反序列化redis的key值

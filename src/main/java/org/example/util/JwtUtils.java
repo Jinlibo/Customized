@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -20,10 +19,8 @@ public class JwtUtils {
     @Value("${my.secretKey:abcd}")
     private String secret; //密钥
 
-    public String createJwt(String userInfo, List<String> authList) {
+    public String createJwt(String userInfo) {
         Date issDate = new Date(); //签发时间时间
-//        Date expireDate = new Date(issDate.getTime() + 1000 *30); //过期时间30秒
-        Date expireDate = new Date(issDate.getTime() + 1000 * 60 * 60 * 2); //当前时间加上两个小时
         //头部
         Map<String, Object> headerClaims = new HashMap<>();
         headerClaims.put("alg", "HS256");
@@ -31,9 +28,7 @@ public class JwtUtils {
         return JWT.create().withHeader(headerClaims)
                 .withIssuer("thomas") //设置签发人
                 .withIssuedAt(issDate) //签发时间
-                .withExpiresAt(expireDate)
                 .withClaim("user_info", userInfo) //自定义声明 放入登录用户信息
-                .withClaim("userAuth", authList)//自定义声明
                 .sign(Algorithm.HMAC256(secret)); //使用HS256进行签名，使用secret作为密钥
     }
 
@@ -66,24 +61,6 @@ public class JwtUtils {
             return "";
         } catch (JWTVerificationException e) {
             return "";
-        }
-    }
-
-    /**
-     * 从jwt的payload里获取声明，获取的用户的权限
-     *
-     * @param jwt
-     * @return
-     */
-    public List<String> getUserAuthFromToken(String jwt) {
-        try {
-            JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).build();
-            DecodedJWT decodedJWT = jwtVerifier.verify(jwt);
-            return decodedJWT.getClaim("userAuth").asList(String.class);
-        } catch (IllegalArgumentException e) {
-            return null;
-        } catch (JWTVerificationException e) {
-            return null;
         }
     }
 

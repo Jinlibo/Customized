@@ -24,8 +24,7 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsPass
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<SysUser>();
-        queryWrapper.eq(SysUser::getUsername, username);
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username);
         SysUser SysUser = userMapper.selectOne(queryWrapper);
         if (SysUser == null) {
             throw new UsernameNotFoundException(username);

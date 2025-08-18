@@ -4,7 +4,8 @@ package org.example.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.example.entity.SysUser;
 import org.example.mapper.SysUserMapper;
-import org.springframework.security.core.GrantedAuthority;
+import org.example.security.CustomSecurityUser;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @Service
 public class DBUserDetailsManager implements UserDetailsManager, UserDetailsPasswordService {
@@ -25,21 +26,27 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsPass
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username);
-        SysUser SysUser = userMapper.selectOne(queryWrapper);
-        if (SysUser == null) {
+        SysUser sysUser = userMapper.selectOne(queryWrapper);
+        if (sysUser == null) {
             throw new UsernameNotFoundException(username);
         } else {
-            Collection<GrantedAuthority> authorities = new ArrayList<>();
-            return new org.springframework.security.core.userdetails.User(
-                    SysUser.getUsername(),
-                    SysUser.getPassword(),
-                    SysUser.getEnabled() == 1,
-                    true, //用户账号是否过期
-                    true, //用户凭证是否过期
-                    true, //用户是否未被锁定
-                    authorities); //权限列表
+            // 返回自定义的UserDetails实现
+            CustomSecurityUser customSecurityUser = new CustomSecurityUser(sysUser);
+            // 这里应该加载用户的权限信息
+            List<SimpleGrantedAuthority> authorities = loadUserAuthorities(sysUser.getUserId());
+            customSecurityUser.setAuthorityList(authorities);
+            return customSecurityUser;
         }
     }
+
+    // 添加权限加载方法
+    private List<SimpleGrantedAuthority> loadUserAuthorities(Integer userId) {
+        // TODO: 从数据库加载用户权限
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
+    }
+
 
     @Override
     public UserDetails updatePassword(UserDetails user, String newPassword) {

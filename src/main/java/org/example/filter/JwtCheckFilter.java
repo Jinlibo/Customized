@@ -81,6 +81,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
                     .msg("用户未登录！")
                     .build();
             ResponseUtils.toJsonResponse(request, response, commonResponse);
+            return;
         }
         List<String> authInfo = JSON.parseArray(JSON.toJSONString(userSession.get("auth_info")), String.class);
         SysUser userInfo = (SysUser) userSession.get("user_info");
@@ -88,6 +89,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         if (!token.equals(jwtToken)) {
             CommonResponse<String> commonResponse = CommonResponse.<String>builder().code(401).msg("token非法！").build();
             ResponseUtils.toJsonResponse(request, response, commonResponse);
+            return;
         }
         redisTemplate.expire(RedisKeyConstant.USER_INFO_KEY + userId, 2, TimeUnit.HOURS);
         List<SimpleGrantedAuthority> authorityList = authInfo.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());

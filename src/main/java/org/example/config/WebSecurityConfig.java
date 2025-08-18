@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.filter.JwtCheckFilter;
 import org.example.handler.*;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,8 +15,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.annotation.Resource;
 
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Slf4j
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+@Configuration
 public class WebSecurityConfig {
     @Resource
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;

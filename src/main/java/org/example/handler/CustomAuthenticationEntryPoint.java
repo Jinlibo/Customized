@@ -20,6 +20,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         //创建结果对象
         CommonResponse<String> commonResponse = CommonResponse.<String>builder().code(401).msg("需要登录").build();
 
-        ResponseUtils.toJsonResponse(request, response, commonResponse);
+        ResponseUtils.toJsonResponse(response, commonResponse);
     }
 }

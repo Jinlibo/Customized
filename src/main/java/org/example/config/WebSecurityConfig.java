@@ -1,11 +1,9 @@
 package org.example.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.filter.JsonLoginFilter;
 import org.example.filter.JwtCheckFilter;
 import org.example.handler.CustomAccessDeniedHandler;
 import org.example.handler.CustomAuthenticationEntryPoint;
-import org.example.handler.CustomLogoutSuccessHandler;
 import org.example.service.DBUserDetailsManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,23 +35,25 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/auth/login", "/doc.html", "/swagger-ui/**", "/swagger-resources/**", "/v3/**", "/webjars/**").permitAll();
-        http.authorizeRequests().anyRequest().authenticated();
-        http.addFilterAt(jsonLoginFilter(authenticationManager(http)), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
-        http.logout(logout -> {
-            logout.logoutSuccessHandler(new CustomLogoutSuccessHandler()); //注销成功时的处理
-        });
         //错误处理
         http.exceptionHandling(exception -> {
             exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint());//请求未认证的接口
             exception.accessDeniedHandler(new CustomAccessDeniedHandler()); //请求未授权的接口
         });
-        http.csrf().disable();
+
+        http.authorizeRequests().antMatchers("/auth/login", "/doc.html", "/swagger-ui/**", "/swagger-resources/**", "/v3/**", "/webjars/**").permitAll();
+        http.authorizeRequests().anyRequest().authenticated();
+
+        http.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
+
         //不创建session
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // 禁用CSRF
+        http.csrf().disable();
         // 禁用表单登录
         http.formLogin().disable();
+        // 禁用HTTP Basic认证
+        http.httpBasic().disable();
         return http.build();
     }
 
@@ -64,13 +64,5 @@ public class WebSecurityConfig {
                 .passwordEncoder(passwordEncoder())
                 .and()
                 .build();
-    }
-
-    @Bean
-    public JsonLoginFilter jsonLoginFilter(AuthenticationManager authenticationManager) {
-        JsonLoginFilter filter = new JsonLoginFilter();
-        filter.setAuthenticationManager(authenticationManager);
-        filter.setFilterProcessesUrl("/auth/login");
-        return filter;
     }
 }

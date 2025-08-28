@@ -29,9 +29,7 @@ public class CustomSecurityUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        String myPassword = sysUser.getPassword();
-        sysUser.setPassword(null); //擦除我们的密码，防止传到前端
-        return myPassword;
+        return sysUser.getPassword();
     }
 
     @Override

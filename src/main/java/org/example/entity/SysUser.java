@@ -1,9 +1,9 @@
 package org.example.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +24,7 @@ public class SysUser implements Serializable {
 
     private String username;
 
+    @JsonIgnore
     private String password;
 
     private String sex;
@@ -31,13 +32,4 @@ public class SysUser implements Serializable {
     private String address;
 
     private Integer enabled;
-
-    @TableField(exist = false)
-    private Integer accountNoExpired;
-
-    @TableField(exist = false)
-    private Integer credentialsNoExpired;
-
-    @TableField(exist = false)
-    private Integer accountNoLocked;
 }

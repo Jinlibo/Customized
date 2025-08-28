@@ -7,12 +7,16 @@ import org.example.entity.dto.LoginRequest;
 import org.example.entity.dto.LoginResponse;
 import org.example.service.impl.AuthService;
 import org.example.vo.CommonResponse;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
+/**
+ * 认证控制器 - 纯REST API风格
+ */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @Tag(name = "认证管理", description = "用户认证相关接口")
 @Slf4j
 public class AuthController {
@@ -20,21 +24,21 @@ public class AuthController {
     @Resource
     private AuthService authService;
 
+    /**
+     * 登录入口
+     */
     @PostMapping("/login")
     @Operation(summary = "用户登录", description = "用户名密码登录，返回JWT token")
-    public CommonResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            LoginResponse loginResponse = authService.login(loginRequest);
-            return CommonResponse.success(loginResponse);
-        } catch (Exception e) {
-            log.error("登录失败", e);
-            return CommonResponse.<LoginResponse>builder()
-                    .code(401)
-                    .msg("登录失败：" + e.getMessage())
-                    .build();
-        }
+    public CommonResponse<LoginResponse> login(@RequestBody @Validated LoginRequest loginRequest) {
+        log.info("用户尝试登录: {}", loginRequest.getUsername());
+        LoginResponse loginResponse = authService.login(loginRequest);
+        log.info("用户登录成功: {}", loginRequest.getUsername());
+        return CommonResponse.success(loginResponse);
     }
 
+    /**
+     * 用户退出登录
+     */
     @PostMapping("/logout")
     @Operation(summary = "用户退出", description = "退出登录，清除会话")
     public CommonResponse<String> logout() {
@@ -50,6 +54,9 @@ public class AuthController {
         }
     }
 
+    /**
+     * 获取当前用户信息
+     */
     @GetMapping("/userinfo")
     @Operation(summary = "获取当前用户信息", description = "获取当前登录用户的基本信息")
     public CommonResponse<Object> getCurrentUser() {
@@ -59,7 +66,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("获取用户信息失败", e);
             return CommonResponse.builder()
-                    .code(500)
+                    .code(401)
                     .msg("获取用户信息失败：" + e.getMessage())
                     .build();
         }

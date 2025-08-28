@@ -16,6 +16,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         System.out.println(accessDeniedException);
         //创建结果对象
         CommonResponse<String> commonResponse = CommonResponse.<String>builder().code(401).msg("没有权限").build();
-        ResponseUtils.toJsonResponse(request, response, commonResponse);
+        ResponseUtils.toJsonResponse(response, commonResponse);
     }
 }

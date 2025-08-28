@@ -19,4 +19,12 @@ public class CommonResponse<T> implements Serializable {
     public static <T> CommonResponse<T> success(T data) {
         return CommonResponse.<T>builder().code(200).msg("success").data(data).build();
     }
+
+    public static <T> CommonResponse<T> error(String message) {
+        return CommonResponse.<T>builder().code(400).msg(message).data(null).build();
+    }
+
+    public static <T> CommonResponse<T> error(int code, String message) {
+        return CommonResponse.<T>builder().code(code).msg(message).data(null).build();
+    }
 }

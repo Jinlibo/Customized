@@ -3,8 +3,11 @@ package org.example.config;
 import lombok.extern.slf4j.Slf4j;
 import org.example.filter.JwtCheckFilter;
 import org.example.handler.*;
+import org.example.service.DBUserDetailsManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,6 +26,8 @@ public class WebSecurityConfig {
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     @Resource
     private JwtCheckFilter jwtCheckFilter;
+    @Resource
+    private DBUserDetailsManager dbUserDetailsManager;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -31,8 +36,8 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
-
         http.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
+        http.authorizeRequests().antMatchers("/login", "/doc.html", "/swagger-ui/**", "/swagger-resources/**", "/v3/**", "/webjars/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.formLogin().successHandler(customAuthenticationSuccessHandler).permitAll();
         http.formLogin().failureHandler(new CustomAuthenticationFailureHandler());
@@ -45,14 +50,18 @@ public class WebSecurityConfig {
             exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint());//请求未认证的接口
             exception.accessDeniedHandler(new CustomAccessDeniedHandler()); //请求未授权的接口
         });
-        //会话管理
-        http.sessionManagement(session -> {
-            session.maximumSessions(1).expiredSessionStrategy(new CustomSessionInformationExpiredStrategy());
-        });
-
         http.csrf().disable();
         //不创建session
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .userDetailsService(dbUserDetailsManager) // 注入你的DBUserDetailsManager
+                .passwordEncoder(passwordEncoder())
+                .and()
+                .build();
     }
 }

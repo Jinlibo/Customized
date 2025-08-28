@@ -41,17 +41,17 @@ public class CustomSecurityUser implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return sysUser.getAccountNoExpired().equals(1);
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return sysUser.getAccountNoLocked().equals(1);
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return sysUser.getCredentialsNoExpired().equals(1);
+        return true;
     }
 
     @Override

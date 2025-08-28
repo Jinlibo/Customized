@@ -1,8 +1,8 @@
 package org.example.config;
 
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.GroupedOpenApi;
@@ -17,20 +17,26 @@ public class Knife4jConfig {
     public OpenAPI customOpenAPI() {
         String securitySchemeName = HttpHeaders.AUTHORIZATION;
         return new OpenAPI()
+                .info(new Info()
+                        .title("Customized API")
+                        .description("自定义服务API文档")
+                        .version("1.0"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
                                         .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.APIKEY)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
                                         .in(SecurityScheme.In.HEADER)));
     }
 
     @Bean
     public GroupedOpenApi defaultApiGroup() {
         return GroupedOpenApi.builder()
-                .group("默认分组") // 分组名称
-                .packagesToScan("com.example") // 替换为实际接口的包路径
+                .group("默认分组")
+                .packagesToScan("org.example.controller") // 修正包扫描路径
                 .build();
     }
 

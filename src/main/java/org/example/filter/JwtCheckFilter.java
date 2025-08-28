@@ -77,25 +77,25 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         if (authHeader.toLowerCase().startsWith("bearer ")) {
             jwtToken = authHeader.substring(7).trim();
         } else {
-            responseAuthError(response, "Authorization header格式错误，应为: Bearer <token>");
+            responseAuthError(response, "Authorization信息格式有误");
             return;
         }
 
         if (!StringUtils.hasText(jwtToken)) {
-            responseAuthError(response, "JWT token为空");
+            responseAuthError(response, "token为空");
             return;
         }
 
         // 4. 验证JWT
         if (!JwtTokenUtil.checkJWT(jwtToken)) {
-            responseAuthError(response, "JWT token无效或已过期");
+            responseAuthError(response, "token非法或已过期");
             return;
         }
 
         // 5. 从JWT中获取用户ID
         String userId = JwtTokenUtil.getUserId(jwtToken);
         if (!StringUtils.hasText(userId)) {
-            responseAuthError(response, "无法从JWT中获取用户信息");
+            responseAuthError(response, "token无效");
             return;
         }
 

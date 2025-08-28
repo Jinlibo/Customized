@@ -28,8 +28,6 @@ public class RestTemplateConfig {
                 .setConnectionManager(connectionManager)
                 // 定期清理空闲连接
                 .evictIdleConnections(30, TimeUnit.SECONDS)
-                // 配置重试机制(暂不启用)
-//                .setRetryHandler(new DefaultHttpRequestRetryHandler(3, true))
                 //设置Keep-alive
                 .setConnectionTimeToLive(60, TimeUnit.SECONDS)
                 .build();

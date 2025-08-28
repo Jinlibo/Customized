@@ -2,8 +2,6 @@ package org.example.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.filter.JwtCheckFilter;
-import org.example.handler.CustomAccessDeniedHandler;
-import org.example.handler.CustomAuthenticationEntryPoint;
 import org.example.service.DBUserDetailsManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,11 +33,6 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
-        //错误处理
-        http.exceptionHandling(exception -> {
-            exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint());//请求未认证的接口
-            exception.accessDeniedHandler(new CustomAccessDeniedHandler()); //请求未授权的接口
-        });
 
         http.authorizeRequests().antMatchers("/auth/login", "/doc.html", "/swagger-ui/**", "/swagger-resources/**", "/v3/**", "/webjars/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();

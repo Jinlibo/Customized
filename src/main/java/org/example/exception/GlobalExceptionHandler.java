@@ -7,6 +7,7 @@ import org.example.vo.CommonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -33,10 +34,22 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    /**
+     * 处理登录异常
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public CommonResponse handleLoginException(BadCredentialsException e) {
         log.error("登录失败 - 错误: {}", e.getMessage());
         return CommonResponse.error(401, "登录失败：" + e.getMessage());
+    }
+
+    /**
+     * 处理访问被拒绝异常
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public CommonResponse<String> handleAccessDeniedException(AccessDeniedException e) {
+        log.error("没有权限 - 错误: {}", e.getMessage());
+        return CommonResponse.error(403, "没有权限");
     }
 
     /**

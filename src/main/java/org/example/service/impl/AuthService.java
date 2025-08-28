@@ -6,7 +6,7 @@ import org.example.entity.SysUser;
 import org.example.entity.dto.LoginRequest;
 import org.example.entity.dto.LoginResponse;
 import org.example.security.CustomSecurityUser;
-import org.example.util.JwtUtils;
+import org.example.util.JwtTokenUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,8 +29,6 @@ public class AuthService {
     @Resource
     private AuthenticationManager authenticationManager;
     @Resource
-    private JwtUtils jwtUtils;
-    @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
     /**
@@ -49,7 +47,7 @@ public class AuthService {
         SysUser sysUser = securityUser.getSysUser();
 
         // 4. 生成JWT
-        String jwtToken = jwtUtils.createJwt(String.valueOf(sysUser.getUserId()));
+        String jwtToken = JwtTokenUtil.createToken(String.valueOf(sysUser.getUserId()));
 
         // 5. 获取权限信息
         List<String> authList = securityUser.getAuthorities().stream()

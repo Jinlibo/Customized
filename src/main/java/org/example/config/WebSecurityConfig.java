@@ -1,8 +1,11 @@
 package org.example.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.filter.JsonLoginFilter;
 import org.example.filter.JwtCheckFilter;
-import org.example.handler.*;
+import org.example.handler.CustomAccessDeniedHandler;
+import org.example.handler.CustomAuthenticationEntryPoint;
+import org.example.handler.CustomLogoutSuccessHandler;
 import org.example.service.DBUserDetailsManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +26,6 @@ import javax.annotation.Resource;
 @Configuration
 public class WebSecurityConfig {
     @Resource
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    @Resource
     private JwtCheckFilter jwtCheckFilter;
     @Resource
     private DBUserDetailsManager dbUserDetailsManager;
@@ -36,15 +37,13 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
-        http.authorizeRequests().antMatchers("/login", "/doc.html", "/swagger-ui/**", "/swagger-resources/**", "/v3/**", "/webjars/**").permitAll();
+        http.authorizeRequests().antMatchers("/auth/login", "/doc.html", "/swagger-ui/**", "/swagger-resources/**", "/v3/**", "/webjars/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
-        http.formLogin().successHandler(customAuthenticationSuccessHandler).permitAll();
-        http.formLogin().failureHandler(new CustomAuthenticationFailureHandler());
+        http.addFilterAt(jsonLoginFilter(authenticationManager(http)), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
         http.logout(logout -> {
             logout.logoutSuccessHandler(new CustomLogoutSuccessHandler()); //注销成功时的处理
         });
-
         //错误处理
         http.exceptionHandling(exception -> {
             exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint());//请求未认证的接口
@@ -53,6 +52,8 @@ public class WebSecurityConfig {
         http.csrf().disable();
         //不创建session
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // 禁用表单登录
+        http.formLogin().disable();
         return http.build();
     }
 
@@ -63,5 +64,13 @@ public class WebSecurityConfig {
                 .passwordEncoder(passwordEncoder())
                 .and()
                 .build();
+    }
+
+    @Bean
+    public JsonLoginFilter jsonLoginFilter(AuthenticationManager authenticationManager) {
+        JsonLoginFilter filter = new JsonLoginFilter();
+        filter.setAuthenticationManager(authenticationManager);
+        filter.setFilterProcessesUrl("/auth/login");
+        return filter;
     }
 }

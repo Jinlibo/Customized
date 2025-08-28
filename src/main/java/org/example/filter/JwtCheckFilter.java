@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.constant.RedisKeyConstant;
 import org.example.entity.SysUser;
 import org.example.security.CustomSecurityUser;
-import org.example.util.JwtUtils;
+import org.example.util.JwtTokenUtil;
 import org.example.util.ResponseUtils;
 import org.example.vo.CommonResponse;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,15 +31,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtCheckFilter extends OncePerRequestFilter {
     @Resource
-    private JwtUtils jwtUtils;
-    @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
         //如果是登录请求urI，直接放行
-        if (requestURI.equals("/login")) {
+        if (requestURI.equals("/auth/login")) {
             doFilter(request, response, filterChain);
             return;
         }
@@ -62,8 +60,8 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             return;
         }
         //校验jwt
-        boolean verifyResult = jwtUtils.verifyToken(jwtToken);
-        if (!verifyResult) {
+        boolean legal = JwtTokenUtil.checkJWT(jwtToken);
+        if (!legal) {
             CommonResponse<String> httpResult = CommonResponse.<String>builder()
                     .code(0)
                     .msg("token不正确或已过期！")
@@ -72,7 +70,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             return;
         }
         //从jwt里获取用户id
-        String userId = jwtUtils.getUserInfoFromToken(jwtToken);
+        String userId = JwtTokenUtil.getUserId(jwtToken);
         //redis获取用户session
         Map<Object, Object> userSession = redisTemplate.opsForHash().entries(RedisKeyConstant.USER_INFO_KEY + userId);
         if (userSession.isEmpty()) {
